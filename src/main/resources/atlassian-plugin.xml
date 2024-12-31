@@ -1,0 +1,58 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+    </plugin-info>
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="bamboo-metrics"/>
+
+    <!-- add our web resources -->
+    <web-resource key="bamboo-metrics-resources" name="Bamboo Metrics Configuration UI">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-form-validation</dependency>
+        <resource type="download" name="bamboo-metrics.css" location="/css/bamboo-metrics.css"/>
+        <resource type="download" name="bamboo-metrics.js" location="/js/bamboo-metrics.js"/>
+        <!-- Make available to the client-side in JS as well... -->
+        <resource type="download" name="images/" location="/images"/>
+        <context>bamboo-metrics</context>
+    </web-resource>
+
+    <!-- Plugin Web Section -->
+    <web-section key="metric.web.section" name="Metrics"
+                 location="system.admin" weight="110">
+        <label key="Metrics configuration" />
+    </web-section>
+
+    <!--    Show plugin in the admin config page -->
+    <web-item key="metrics-server-config" section="system.admin/metric.web.section">
+        <label key="Metrics Server" />
+        <link>/plugins/servlet/metrics</link>
+    </web-item>
+    <servlet key="metricsConfigServlet" class="com.kezi.bamboo.metrics.configuration.MetricAdminServlet">
+        <description>Configuration Servlet</description>
+        <url-pattern>/metrics</url-pattern>
+        <init-param>
+            <param-name>RequireSecurityToken</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </servlet>
+    <rest key="metricRestApi" path="/metrics" version="1.0">
+        <description>Provides REST resources for the admin UI.</description>
+    </rest>
+    <!-- Bamboo Event listeners -->
+    <bambooEventListener key="general.metrics.events" name="Bamboo General Event Metrics"
+                         class="com.kezi.bamboo.metrics.impl.events.BambooEventsHandler">
+        <description>Metric event listener</description>
+    </bambooEventListener>
+    <bambooEventListener key="build.metrics.events" name="Bamboo Build Event Metrics"
+                         class="com.kezi.bamboo.metrics.impl.events.BuildEvents">
+        <description>Metric event listener</description>
+    </bambooEventListener>
+    <ao key="ao-module">
+        <description>The configuring AO table for the plugin settings</description>
+        <entity>com.kezi.bamboo.metrics.model.ServerProperties</entity>
+    </ao>
+</atlassian-plugin>

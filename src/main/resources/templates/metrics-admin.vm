@@ -1,0 +1,55 @@
+#set($items = $serverList)
+
+<html lang="html">
+  <head>
+    <title>$i18n.getText("metrics.title")</title>
+    <meta name="decorator" content="atl.admin">
+    $webResourceManager.requireResource("com.kezi.bamboo.metrics.bamboo-metrics:bamboo-metrics-resources")
+  </head>
+  <body>
+  <div>
+    <h1>$i18n.getText("metric.server.configure.view")</h1>
+  </div>
+  <div class="form-view shared-capability-form">
+    <div class="form-view">
+      <h3>$i18n.getText("metric.server.configure.head")</h3>
+      <p>List of metric servers to ingest Bamboo Metrics</p>
+        #parse("/templates/metrics-server-list.vm")
+    </div>
+  </div>
+  <div class="aui">
+    <br>
+    <h2>Add a new metrics Server</h2>
+  </div>
+    <form id="configuration" class="aui">
+      <div class="field-group">
+        <label for="serverName">$i18n.getText("metrics.server.label")</label>
+        <input type="text" id="serverName" name="serverName" class="text"
+               data-aui-validation-field
+               data-aui-validation-required="required">
+      </div>
+      <div class="field-group">
+        <label for="description">$i18n.getText("metric.server.description")</label>
+        <input type="text" id="description" name="description" class="text">
+      </div>
+      <div class="field-group">
+        <label for="apiKey">$i18n.getText("metric.server.api.key")</label>
+        <input type="text" id="apiKey" name="apiKey" class="text"
+               data-aui-validation-field
+               data-aui-validation-required="required">
+      </div>
+      <div class="field-group">
+        <label for="appKey">$i18n.getText("metric.server.app.key")</label>
+        <input type="text" id="appKey" name="appKey" class="text"
+               data-aui-validation-field
+               data-aui-validation-required="required">
+      </div>
+      <div class="field-group buttons-container">
+            <div class="aui-button aui-button-primary"
+            id="test-connection" class="aui-button">$i18n.getText("metric.server.api.key.test")</div>
+        <button class="aui-button aui-button-primary aui-button" id="add-configuration" type="submit">$i18n.getText("metric.server.app.key.save")</button>
+      </div>
+      <input type="hidden" name="atl_token" id="atl_token" value="$atl_token" />
+    </form>
+  </body>
+</html>

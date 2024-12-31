@@ -1,0 +1,31 @@
+<table class="aui">
+    <thead>
+    <tr>
+        <th id="basic-servername">Server</th>
+        <th id="basic-status">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach($server in $serverList)
+                <tr id=$server.getId()>
+                <td headers="basic-servername">$server.getServerName()
+                <p class="small">$server.getDescription()</p></td>
+                <td headers="basic-status">
+                    <span class="aui-lozenge #if($server.getEnabled())aui-lozenge-success#else au-lozenge-inactive#end">
+                        #if($server.getEnabled())
+        ACTIVE
+                        #else
+                            INACTIVE
+                        #end
+                    </span>
+                </td>
+                    <td>
+                      <input class="radio" id="enable-server" type="checkbox" onchange="setDefaultServer(this,$server.getId() )"
+                      #if($server.getEnabled())checked#else null#end/>
+                        <input type="hidden" name="atl_token" id="atl_token_radio" value="$atl_token" />
+                    </td>
+                </tr>
+        #end
+
+    </tbody>
+</table>
