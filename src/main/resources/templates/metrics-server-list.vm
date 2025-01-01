@@ -8,7 +8,7 @@
     <tbody>
         #foreach($server in $serverList)
                 <tr id=$server.getId()>
-                <td headers="basic-servername">$server.getServerName()
+                    <td headers="basic-servername"><a href='metrics/$server.getId()/configuration'>$server.getServerName()</a>
                 <p class="small">$server.getDescription()</p></td>
                 <td headers="basic-status">
                     <span class="aui-lozenge #if($server.getEnabled())aui-lozenge-success#else au-lozenge-inactive#end">

@@ -1,13 +1,24 @@
 package com.kezi.bamboo.metrics.api;
 
-import com.kezi.bamboo.metrics.model.BambooMetrics;
+import com.datadog.api.client.v2.model.MetricPayload;
+import com.kezi.bamboo.metrics.model.CustomBambooMetrics;
 
 import java.util.concurrent.ExecutionException;
 public interface PushMetrics {
     /**
-     * This method is the Handler for pushing metrics sent to the Metrics server
-     * using HTTP method
-     * @param metrics -
+     * Prepare a message of metrics of type COUNT or GAUGE
+     * @param metrics - Bamboo event constructed message with metric {@link CustomBambooMetrics}
+     * @return - Datadog metric payload{@link MetricPayload}
+     * @throws ExecutionException -Throws exception is operation failed
+     * @throws InterruptedException - Throws exception if operation is interrupted
      */
-    void sendMetrics(BambooMetrics metrics) throws ExecutionException, InterruptedException;
+    MetricPayload sendMetrics(CustomBambooMetrics metrics) throws ExecutionException, InterruptedException;
+
+    /**
+     * Sends the message to datadog using the API
+     * @param payload  Bamboo event constructed message with metric
+     * @throws ExecutionException -Throws exception is operation failed
+     * @throws InterruptedException - Throws exception if operation is interrupted
+     */
+    void sendMetrics(MetricPayload payload) throws ExecutionException, InterruptedException;
 }

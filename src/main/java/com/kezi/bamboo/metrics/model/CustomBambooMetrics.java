@@ -1,21 +1,19 @@
 package com.kezi.bamboo.metrics.model;
 
 import com.datadog.api.client.v2.model.MetricIntakeType;
-
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Creates a model for Metrics to be sent to the metric server
  */
-public class BambooMetrics {
+public class CustomBambooMetrics {
     private final String metricName;
     private final Double metricValue;
     private final String metricUnit;
     private final MetricIntakeType metricType;
     private final List<String> metricTags;
 
-    public BambooMetrics(BambooMetricsBuilder builder) {
+    public CustomBambooMetrics(BambooMetricsBuilder builder) {
         this.metricName = builder.metricName;
         this.metricValue = builder.metricValue;
         this.metricUnit = builder.metricUnit;
@@ -76,8 +74,8 @@ public class BambooMetrics {
             return this;
         }
 
-        public BambooMetrics build(){
-            return new BambooMetrics(this);
+        public CustomBambooMetrics build(){
+            return new CustomBambooMetrics(this);
         }
     }
 }

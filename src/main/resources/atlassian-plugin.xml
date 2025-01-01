@@ -31,13 +31,13 @@
         <label key="Metrics Server" />
         <link>/plugins/servlet/metrics</link>
     </web-item>
-    <servlet key="metricsConfigServlet" class="com.kezi.bamboo.metrics.configuration.MetricAdminServlet">
-        <description>Configuration Servlet</description>
+    <servlet key="metricsConfigServlet" class="com.kezi.bamboo.metrics.configuration.servlets.AddMetricServerServlet">
+        <description>Add metric Servlet</description>
         <url-pattern>/metrics</url-pattern>
-        <init-param>
-            <param-name>RequireSecurityToken</param-name>
-            <param-value>true</param-value>
-        </init-param>
+    </servlet>
+    <servlet key="configureMetricServlet" class="com.kezi.bamboo.metrics.configuration.servlets.ConfigureMetricServlet">
+        <description>Configuration metric server</description>
+        <url-pattern>/metrics/*</url-pattern>
     </servlet>
     <rest key="metricRestApi" path="/metrics" version="1.0">
         <description>Provides REST resources for the admin UI.</description>

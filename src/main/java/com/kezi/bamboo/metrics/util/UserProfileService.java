@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @BambooComponent
 public class UserProfileService {
-    private static final Logger log = LoggerFactory.getLogger(UserProfileService.class);
     private final UserManager userManager;
     public UserProfileService(@ComponentImport UserManager userManager) {
         this.userManager = userManager;

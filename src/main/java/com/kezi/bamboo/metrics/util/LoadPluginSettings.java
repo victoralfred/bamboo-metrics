@@ -9,10 +9,15 @@ import com.atlassian.sal.api.transaction.TransactionCallback;
 import com.atlassian.sal.api.transaction.TransactionTemplate;
 import com.datadog.api.client.ApiClient;
 import com.datadog.api.client.v2.api.MetricsApi;
-import com.kezi.bamboo.metrics.model.ServerConfig;
+import com.datadog.api.client.v2.model.MetricPayload;
+import com.kezi.bamboo.metrics.impl.datadog.SendMetricsToDatadog;
+import com.kezi.bamboo.metrics.model.CustomBambooMetrics;
+import com.kezi.bamboo.metrics.model.ConfigurationProperties;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * Handles loading of Plugin configuration in the global plugin state {@link PluginSettingsFactory}
@@ -39,49 +44,49 @@ public class LoadPluginSettings {
      * specified Metric Server
      * @param settings-
      * @param secretEncryptionService-
-     * @param serverConfig todo
+     * @param configurationProperties todo
      */
     public static void getApplicationProperties(PluginSettings settings,
                                                 SecretEncryptionService secretEncryptionService,
-                                                final ServerConfig serverConfig) {
-            serverConfig.setServerName(settings.get(ServerConfig.class.getName()+"serverName").toString());
-            serverConfig.setDescription(settings.get(ServerConfig.class.getName()+"description").toString());
-            serverConfig.setApiKey(settings.get(ServerConfig.class.getName()+"apiKey").toString());
-            serverConfig.setAppKey(settings.get(ServerConfig.class.getName()+"appKey").toString());
+                                                final ConfigurationProperties configurationProperties) {
+            configurationProperties.setServerName(settings.get(ConfigurationProperties.class.getName()+"serverName").toString());
+            configurationProperties.setDescription(settings.get(ConfigurationProperties.class.getName()+"description").toString());
+            configurationProperties.setApiKey(settings.get(ConfigurationProperties.class.getName()+"apiKey").toString());
+            configurationProperties.setAppKey(settings.get(ConfigurationProperties.class.getName()+"appKey").toString());
 
     }
 
     /**
      * Saves the Plugin setting which should be used in the global scope for this plugin.
      * @param pluginSettingsFactory Plugin setting factory
-     * @param serverConfig object to be stored
+     * @param configurationProperties object to be stored
      */
     public static void setActiveMetricServer(PluginSettingsFactory pluginSettingsFactory,
-                                             final ServerConfig serverConfig){
+                                             final ConfigurationProperties configurationProperties){
         PluginSettings settings = pluginSettingsFactory.createGlobalSettings();
-        settings.put(ServerConfig.class.getName() + "serverName", serverConfig.getServerName());
-        settings.put(ServerConfig.class.getName() + "description", serverConfig.getDescription());
-        settings.put(ServerConfig.class.getName() + "apiKey", serverConfig.getApiKey());
-        settings.put(ServerConfig.class.getName() + "appKey", serverConfig.getAppKey());
-        settings.put(ServerConfig.class.getName() + "serverId", String.valueOf(serverConfig.getId()));
-        settings.put(ServerConfig.class.getName() + "enabled", String.valueOf(serverConfig.getEnabled()));
+        settings.put(ConfigurationProperties.class.getName() + "serverName", configurationProperties.getServerName());
+        settings.put(ConfigurationProperties.class.getName() + "description", configurationProperties.getDescription());
+        settings.put(ConfigurationProperties.class.getName() + "apiKey", configurationProperties.getApiKey());
+        settings.put(ConfigurationProperties.class.getName() + "appKey", configurationProperties.getAppKey());
+        settings.put(ConfigurationProperties.class.getName() + "serverId", String.valueOf(configurationProperties.getId()));
+        settings.put(ConfigurationProperties.class.getName() + "enabled", String.valueOf(configurationProperties.getEnabled()));
     }
 
     public MetricsApi getMetricsApi() {
         String API_KEY = "";
         String APP_KEY = "";
         try{
-            ServerConfig serverConfig = transactionTemplate.execute(new TransactionCallback<ServerConfig>() {
-                public ServerConfig doInTransaction() {
-                    ServerConfig config = new ServerConfig();
+            ConfigurationProperties configurationProperties = transactionTemplate.execute(new TransactionCallback<ConfigurationProperties>() {
+                public ConfigurationProperties doInTransaction() {
+                    ConfigurationProperties config = new ConfigurationProperties();
                     getApplicationProperties(pluginSettingsFactory.createGlobalSettings(), secretEncryptionService,config);
                     return config;
                 }
             });
-            if (serverConfig != null) {
+            if (configurationProperties != null) {
                 log.info("Loaded the Metric server Configuration");
-                API_KEY = serverConfig.getApiKey();
-                APP_KEY = serverConfig.getAppKey();
+                API_KEY = configurationProperties.getApiKey();
+                APP_KEY = configurationProperties.getAppKey();
             }
         }catch(Exception e){
             log.error("Failed to retrieve configuration", e);
@@ -93,5 +98,28 @@ public class LoadPluginSettings {
         log.error("DD-API-KEY {}", secretEncryptionService.decrypt(API_KEY));
         log.error("DD-APP-KEY {}", secretEncryptionService.decrypt(APP_KEY));
         return new MetricsApi(apiClient);
+    }
+
+    /**
+     * Utility method to test connection to metric server
+     * @param apiKey - API Key
+     * @param appKey - APP key
+     * @param metrics -
+     * @param pushMetric -
+     * @throws ExecutionException-
+     * @throws InterruptedException-
+     */
+    public static void testApiCredentialsCanAccessServer(final String apiKey,
+                                                         final String appKey,
+                                                         final CustomBambooMetrics metrics,
+                                                         final SendMetricsToDatadog pushMetric
+                                                         )
+            throws ExecutionException, InterruptedException {
+        ApiClient apiClient = new ApiClient();
+        apiClient.addDefaultHeader("DD-API-KEY", apiKey);
+        apiClient.addDefaultHeader("DD-APP-KEY", appKey);
+        MetricPayload metricPayload = pushMetric.sendMetrics(metrics);
+        MetricsApi metricsApi = new MetricsApi(apiClient);
+        metricsApi.submitMetricsAsync(metricPayload).get();
     }
 }

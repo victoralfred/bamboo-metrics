@@ -1,0 +1,9 @@
+<html lang="html">
+<head>
+    <title>$i18n.getText("metrics.title")</title>
+    <meta name="decorator" content="atl.admin">
+    $webResourceManager.requireResource("com.kezi.bamboo.metrics.bamboo-metrics:bamboo-metrics-resources")
+</head>
+<body>
+</body>
+</html>
