@@ -25,7 +25,7 @@ jobs:
     - name: Configure Datadog Test Optimization
       uses: datadog/test-visibility-github-action@v2
       with:
-        language: java
+        languages: java
         api_key: ${{ secrets.DD_API_KEY }}
         site: datadoghq.com
     - name: Run test
